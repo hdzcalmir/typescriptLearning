@@ -1,5 +1,12 @@
 const prefix = '🐉 ';
 
+// custom deklarisani tip, kao sto je number, string, string[]
+type productType = {
+  id: number;
+  name: string;
+  icon?: string;
+}
+
 export default async function updateOutput(id:string) {
   
 }
@@ -28,8 +35,8 @@ function runTheLearningSamples() {
   console.log(`${prefix} function declaration`);
   console.log(addNumbersDeclaration(10,15));
   
-  
-  function addNumbersDeclaration(x: number, y: number){
+  // : number na kraju znaci da ce return funkcije biti number / broj
+  function addNumbersDeclaration(x: number, y: number) : number{
     const sum: number =  x + y;
     return sum;
   }
@@ -42,5 +49,57 @@ function runTheLearningSamples() {
 
   console.log(`${prefix} function expression`);
   console.log(addNumberExpression(100,15));
+
+  const sampleProducts = [
+    {
+      id: 10,
+      name: 'Pizza Slice',
+      icon: 'fas fa-pizza-slice',
+    },
+    {
+      id: 20,
+      name: 'Ice Cream',
+      icon: 'fas fa-ice-cream',
+    },
+    {
+      id: 30,
+      name: 'Cheese',
+      icon: 'fas fa-cheese',
+    },
+  ];
+
+  // return ce biti string array
+  function getProductName() : string[] {
+    return sampleProducts.map((p) => p.name);
+  }
+
+  console.log(`${prefix} return array`);
+  // vraca nam array proizvoda, odnosno imena, a to je ako ne deklarisemo da 
+  // output funkcije drugacijeg tipa podatka
+  console.log(getProductName());
+  
+  // bitno da je da stavimo i undefined
+  function getProductById(id: number) : productType | undefined {
+    return sampleProducts.find(p => id === p.id)
+  }
+
+  console.log(`${prefix} return ProductType`);
+
+  console.log(getProductById(20));
+
+  // return type na ovoj funkciji je void
+  function displayProducts(products: productType[]) : void {
+    const productName = products.map(p => {
+      const name = p.name.toLowerCase();
+      return name;
+    });
+
+    const message = `Sample products include: ${productName.join(', ')}`;
+    console.log(`${prefix} return void`);
+    console.log(message);
+    
+  }
+
+  displayProducts(sampleProducts);
 
 }
