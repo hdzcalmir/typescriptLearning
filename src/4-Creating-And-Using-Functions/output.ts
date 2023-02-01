@@ -9,7 +9,7 @@ type productType = {
   icon?: string;
 }
 
-export default async function updateOutput(id:string) {
+export default async function updateOutput(id: string) {
   const products = await getProducts();
   const output = document.querySelector(`#${id}`);
   const html = layoutProducts(products);
@@ -62,7 +62,7 @@ function runTheLearningSamples() {
     console.log(`product id=${id} and name=${name}`)
   }
 
-  displayProductInfo(10, 'Pizza')
+  displayProductInfo(10, 'Pizza');
   // tip podatka koji saljemo kao argument u funkciju mora se podudarati sa tipom podatka koji funkcija prima
   // odnosno tipom podatka parametra
   // displayProductInfo(10, ['Pizza', 1, 'John'])
