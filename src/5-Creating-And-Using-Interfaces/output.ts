@@ -1,5 +1,9 @@
 import { getProducts, Product } from '../lib';
 
+// interface is a code contract
+
+// an interface defines "shape" of data
+
 export default async function updateOutput(id: string) {
   const products = await getProducts();
   const output = document.querySelector(`#${id}`);
