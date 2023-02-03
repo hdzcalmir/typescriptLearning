@@ -6,6 +6,7 @@ interface HasId {
   id: number;
 }
 
+// CUSTOM CONSTRAINTS
 class GenericModel<T extends HasId> {
   public items: T[] | undefined;
   constructor(public url: string) {}
@@ -24,6 +25,8 @@ const foodModel = new GenericModel<FoodProduct>(productsURL);
 
 export default async function updateOutput(id: string = 'output') {
   // const products = await getProducts();
+  // getList uzima kao tip podatka FoodProduct, te na taj nacin moze uzeti i bilo koji
+  // drugi tip podatka
   // const products = await getList<FoodProduct>(productsURL);
   const products = await foodModel.getItems();
 
@@ -59,12 +62,16 @@ function layoutProducts(products: FoodProduct[]): string {
   return productsHtml;
 }
 
+// primjer koristenja genericsa u funkciji
 async function getProducts(): Promise<FoodProduct[]> {
   const response: Response = await fetch(productsURL);
   const products: FoodProduct[] = await response.json();
   return products;
 }
 
+// T predstavlja type i po konvenciji je da ono bude veliko
+// ova funkcija je identicna getProducts samo sto je ona genericna, odnosno moze primati sve
+// tipove podataka, reusable je tipa i za korisnike, i za kupce i slicno
 async function getList<T>(url: string): Promise<T[]> {
   const response: Response = await fetch(url);
   const items: T[] = await response.json();
@@ -78,39 +85,44 @@ async function getList<T>(url: string): Promise<T[]> {
 runTheLearningSamples();
 
 async function runTheLearningSamples() {
-  // Reusable code with generics
-  function whatIsIt_number(arg: number): number {
+
+  function whatIsIt_number(arg: number) : number {
     return arg;
   }
 
-  console.log(`${prefix} Generics Overview`);
-  console.log(whatIsIt_number(11));
+  console.log(`${prefix} Generics overview`);
+  console.log(whatIsIt_number(10));
+  
+  // function whatIsIt_string(arg: string) : string {
+  //   return arg;
+  // }
 
-  function whatIsIt_string(arg: string): string {
-    return arg;
-  }
-  console.log(whatIsIt_string('john'));
+  // console.log(whatIsIt_string('string'));
 
-  function whatIsIt_any(arg: any): any {
-    return arg;
-  }
-  console.log(whatIsIt_any(11));
-  console.log(whatIsIt_any('john'));
-
-  function whatIsIt_typed<T>(arg: T): T {
+  // any nije dobra praksa
+    function whatIsIt_any(arg: any) : any {
     return arg;
   }
 
-  let n: number = whatIsIt_typed<number>(11);
-  let s: string = whatIsIt_typed<string>('john');
-  let b: boolean = whatIsIt_typed<boolean>(true);
-  console.log(n, s, b);
+  console.log(whatIsIt_any('almir'));
+  console.log(whatIsIt_any(22));
+  
+  // imamo funkciju koja hendluje vise tipova podataka
+  // varijabla type predstavlja tip podatka, a opet je zasticeno
+  // jer manuelno unosimo tip podatka prilikom pozivanja funkcije
+  function whatIsIt_typed<Type>(arg: Type) : Type {
+    return arg;
+  }
+  
+  // ovdje smo rekli da ce tip koji ce biti proslijeđen biti 
+  // number/broj, tako vazi i a druge
+  let n : number = whatIsIt_typed<number>(22);
+  let s : string = whatIsIt_typed<string>('string');
+  let b : boolean = whatIsIt_typed<boolean>(true);
 
-  // generics on functions
-
-  // ~ examine getProducts() and how it returns a Promise<FoodProduct[]>
-  // ~ examine getList() and how it returns a Promise<T[]>
-
+  console.log(n,s,b);
+  
+  // interface za Customera
   interface Customer {
     id: number;
     name: string;
@@ -118,21 +130,21 @@ async function runTheLearningSamples() {
 
   async function getData() {
     console.log(`${prefix} Generic Functions`);
-
+    // getList funkciji smo samo proslijedili type a ona nam je vratila podatke u oba slucaja
+    // i kod customera i kod products
     const products = await getList<FoodProduct>(productsURL);
     console.table(products);
-
+    
     const customers = await getList<Customer>(customersURL);
     console.table(customers);
   }
-  await getData();
 
-  // generic interface
+  await getData();
 
   interface Model<T> {
     items: T[] | undefined;
     getItems: () => Promise<T[]>;
-    getItemById: (id: number) => T | undefined;
+    getItemsById: (id: number) => T | undefined;
   }
 
   class FoodModel implements Model<FoodProduct> {
@@ -143,45 +155,41 @@ async function runTheLearningSamples() {
       return this.items;
     }
 
-    getItemById(id: number): FoodProduct | undefined {
-      return this.items ? this.items.find((item) => (id === item.id)) : undefined;
+    getItemsById(id: number) : FoodProduct | undefined {
+      return this.items ? this.items.find(item => id = item.id) : undefined;
     }
+
   }
 
-  const foodModel: FoodModel = new FoodModel();
-  await foodModel.getItems();
-  console.log(`${prefix} Generic Interface`);
-  console.table(foodModel.items);
+    const foodModel: FoodModel = new FoodModel();
+    await foodModel.getItems();
+    // foodModel.getItemsById(90);
+    console.log(`${prefix} Generic Interface`);
+    console.table(foodModel.items);
 
-  // generic classes
+    // proslijedili smo tip podatka i argument klasi GenericModel i na osnovu
+    // toga mozemo vratiti podatke
+    const genericFoodModel = new GenericModel<FoodProduct>(productsURL);
+    const genericCustomerModel = new GenericModel<Customer>(customersURL);
+    await genericFoodModel.getItems();
+    await genericCustomerModel.getItems();
+    console.log(`${prefix} Generic Class`);
+    console.table(genericFoodModel.items);
+    console.table(genericCustomerModel.items);
+    
+    
+    const model: FoodModel = new FoodModel();
+    await model.getItems();
+    const foodItem: Readonly<FoodProduct | undefined> = model.getItemsById(10);
+    if (foodItem) {
+      // ne mozemo uredjivati readonly property-e a u ovom slucaju je to foodItem
+    // foodItem.name = 'Some name';
+    // foodItem.icon = 'Some icon';
+    }
 
-  // see GenericModel<T>
-
-  const genericFoodModel = new GenericModel<FoodProduct>(productsURL);
-  const genericCustomerModel = new GenericModel<Customer>(customersURL);
-  await genericFoodModel.getItems();
-  await genericCustomerModel.getItems();
-  console.log(`${prefix} Generic Class`);
-  console.table(genericFoodModel.items);
-  console.table(genericCustomerModel.items);
-
-  // generic constraints
-
-  // see GenericModel and how it extends the T ==> class GenericModel<T extends HasId> {}
-
-  // Built-in Constraints
-
-  // ReadOnly<T> constraint
-  const model: FoodModel = new FoodModel();
-  await model.getItems();
-  const foodItem: Readonly<FoodProduct | undefined> = model.getItemById(10);
-  if (foodItem) {
-    // foodItem.name = 'some name';
-    // foodItem.icon = 'some icon';
-  }
-
-  // Partial<T> constraint
-  const pear = { name: 'pear' };
-  // const pearFood: FoodProduct = pear;
-  const pearFood: Partial<FoodProduct> = pear;
+    const pear = {name: 'pear'};
+    // const pearFood: FoodProduct = pear;
+    // ovo ce raditi iako pear ne sadrzi sve property-e koje zahtjeva, jer smo koristili
+    // partial, i to je buil in constraints
+    const pearFood: Partial<FoodProduct> = pear;
 }
